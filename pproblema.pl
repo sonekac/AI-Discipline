@@ -51,7 +51,7 @@ estado_inicial(e([v(11,[1,2,3,4,5,6,7,8,9],_), v(12,[1,2,3,4,5,6,7,8,9],_), v(13
         v(97,[1,2,3,4,5,6,7,8,9],6), v(98,[1,2,3,4,5,6,7,8,9],_), v(99,[1,2,3,4,5,6,7,8,9],_),],[])).
 
 %Restricoes
-%All vals of v are different; lines(=i+1...8) != val; columns(=j+10...80) != vals
+%inside(=i+1...2 && =j+1...2)!=val; lines(=i+1...8) != val; columns(=j+10...80) != val
 
 ve_restricoes(e(Nafec,Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect),  I \= J,
                                             (/*inside, line, column*/)).
