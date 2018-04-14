@@ -2,7 +2,7 @@
 Puzzle Posições
 _ _ 5 | _ 8 _ | _ 7 _ 	11 12 13 | 14 15 16 | 17 18 19
 7 _ _ | 2 _ 4 | _ _ 5 	21 22 23 | 24 25 26 | 27 28 29
-3 2 _ | _ _ _ | _ 8 4	31 32 33 | 34 35 36 | 37 38 39
+3 2 _ | _ _ _ | _ 8 4	  31 32 33 | 34 35 36 | 37 38 39
 ------+-------+------	---------+----------+---------
 _ 6 _ | 1 _ 5 | _ 4 _ 	41 42 43 | 44 45 46 | 47 48 49
 _ _ 8 | _ _ _ | 5 _ _ 	51 52 53 | 54 55 56 | 57 58 59
@@ -12,6 +12,15 @@ _ 7 _ | 8 _ 3 | _ 1 _ 	61 62 63 | 64 65 66 | 67 68 69
 6 _ _ | 5 _ 8 | _ _ 7 	81 82 83 | 84 85 86 | 87 88 89
 _ _ 3 | _ 1 _ | 6 _ _ 	91 92 93 | 94 95 96 | 97 98 99
 */
+quadrantes([11,12,13,21,22,23,31,32,33]).
+quadrantes([14,15,16,24,25,26,34,35,36]).
+quadrantes([17,18,19,27,28,29,37,38,39]).
+quadrantes([41,42,43,51,52,53,61,62,63]).
+quadrantes([44,45,46,54,55,56,64,65,66]).
+quadrantes([47,48,49,57,58,59,67,68,69]).
+quadrantes([71,72,73,81,82,83,91,92,93]).
+quadrantes([74,75,76,84,85,86,94,95,96]).
+quadrantes([77,78,79,87,88,89,97,98,99]).
 
 p:- estado_inicial(E0), back(E0,A).%, esc(A).
 
@@ -51,13 +60,52 @@ estado_inicial(e([v(11,[1,2,3,4,5,6,7,8,9],_), v(12,[1,2,3,4,5,6,7,8,9],_), v(13
         v(97,[1,2,3,4,5,6,7,8,9],6), v(98,[1,2,3,4,5,6,7,8,9],_), v(99,[1,2,3,4,5,6,7,8,9],_),],[])).
 
 %Restricoes
-%inside(=i+1...2 && =j+1...2)!=val; lines(=i+1...8) != val; columns(=j+10...80) != val
+%quadrante(=i+1...2 && =j+1...2)!=val; lines(=i+1...8) != val; columns(=j+10...80) != val
 
 ve_restricoes(e(Nafec,Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect),  I \= J,
-                                            (/*inside, line, column*/)).
+                                            (/*quadrante, line, column*/)).
 %ve_restricoes(e(Nafect,[A])).
 
-inside() :- . 	%verifica se os valores são repetidos dentro do "quadrado"
+
+
+quadrante(v(I,Di,Vi), v(J,Dj,Vj)) :- quadrantes(A),member(I,A),
+                                     member(J, A), !,
+                                     Vi \= Vj. 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(_, _).
+
+
+
+
+/*
+
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[11,12,13,21,22,23,31,32,33]),
+                                     member(J, [11,12,13,21,22,23,31,32,33]), !,
+                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[14,15,16,24,25,26,34,35,36]),
+                                     member(J, [14,15,16,24,25,26,34,35,36]), !,
+                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :-\+(member(I,[17,18,19,27,28,29,37,38,39]),
+                                     member(J, [17,18,19,27,28,29,37,38,39]), !,
+                                     Vi = Vj) . 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[41,42,43,51,52,53,61,62,63]),
+                                     member(J, [41,42,43,51,52,53,61,62,63]), !,
+                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[44,45,46,54,55,56,64,65,66]),
+                                     member(J, [44,45,46,54,55,56,64,65,66]), !,
+                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[47,48,49,57,58,59,67,68,69]),
+                                     member(J, [47,48,49,57,58,59,67,68,69]), !,
+                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[71,72,73,81,82,83,91,92,93]),
+                                     member(J, [71,72,73,81,82,83,91,92,93]), !,
+                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[74,75,76,84,85,86,94,95,96]),
+                                    member(J, [74,75,76,84,85,86,94,95,96]), !,
+                                    Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[77,78,79,87,88,89,97,98,99]),
+                                    member(J, [77,78,79,87,88,89,97,98,99]), !,
+                                    Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
+*/
 line() :- .		%verifica se os valores são repetidos numa linha
 column() :- .	%verifica se os valores são repetidos numa coluna
 
@@ -73,3 +121,7 @@ esc(V,V,V):- !,write(r),nl.
 esc(V,N,V):- !,write('_'),nl.
 esc(V,N,N):-!,write(r), M is N+1, esc(V,N,M).
 esc(V,N1,N):-write('_'), M is N+1, esc(V,N1,M).
+
+%% propagação restrições
+
+propagacao_restricoes(E, E1) :-
