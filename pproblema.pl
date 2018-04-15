@@ -74,38 +74,6 @@ quadrante(v(I,Di,Vi), v(J,Dj,Vj)) :- quadrantes(A),member(I,A),
 quadrante(_, _).
 
 
-
-
-/*
-
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[11,12,13,21,22,23,31,32,33]),
-                                     member(J, [11,12,13,21,22,23,31,32,33]), !,
-                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[14,15,16,24,25,26,34,35,36]),
-                                     member(J, [14,15,16,24,25,26,34,35,36]), !,
-                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :-\+(member(I,[17,18,19,27,28,29,37,38,39]),
-                                     member(J, [17,18,19,27,28,29,37,38,39]), !,
-                                     Vi = Vj) . 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[41,42,43,51,52,53,61,62,63]),
-                                     member(J, [41,42,43,51,52,53,61,62,63]), !,
-                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[44,45,46,54,55,56,64,65,66]),
-                                     member(J, [44,45,46,54,55,56,64,65,66]), !,
-                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[47,48,49,57,58,59,67,68,69]),
-                                     member(J, [47,48,49,57,58,59,67,68,69]), !,
-                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[71,72,73,81,82,83,91,92,93]),
-                                     member(J, [71,72,73,81,82,83,91,92,93]), !,
-                                     Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[74,75,76,84,85,86,94,95,96]),
-                                    member(J, [74,75,76,84,85,86,94,95,96]), !,
-                                    Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-quadrante(v(I,Di,Vi),v(J,Dj,Vj)) :- \+(member(I,[77,78,79,87,88,89,97,98,99]),
-                                    member(J, [77,78,79,87,88,89,97,98,99]), !,
-                                    Vi = Vj). 	%verifica se os valores são repetidos dentro do "quadrado"
-*/
 line() :- .		%verifica se os valores são repetidos numa linha
 column() :- .	%verifica se os valores são repetidos numa coluna
 
@@ -142,8 +110,12 @@ quadrante_arc(_, A, A).
 
 linha_arc(v([X1,Y1], Di, Vi), v([X1,Y2], Dj, Vj), v(J, D, Vj)) :- !, rem(Vi,Dj,D) .
 linha_arc(_,A,A).
+
 coluna_arc(v([X1,Y1], Di, Vi), v([X2,Y1], Dj, Vj), v(J, D, Vj)) :- !, rem(Vi,Dj,D) .
 coluna_arc(_,A,A).
+
+
+
 rem(_, [], []).
 rem(Item, [Item|L],L) :- !.
 rem(Item, [X|XT],[X|YT]) :- rem(Item, XT, YT).
