@@ -62,7 +62,7 @@ estado_inicial(e([v(11,[1,2,3,4,5,6,7,8,9],_), v(12,[1,2,3,4,5,6,7,8,9],_), v(13
 %Restricoes
 %quadrante(=i+1...2 && =j+1...2)!=val; lines(=i+1...8) != val; columns(=j+10...80) != val
 
-ve_restricoes(e(Nafec,Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect),  I \= J,
+ve_restricoes(e(_, Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect),  I \= J,
                                             (/*quadrante, line, column*/)).
 %ve_restricoes(e(Nafect,[A])).
 
@@ -123,5 +123,27 @@ esc(V,N,N):-!,write(r), M is N+1, esc(V,N,M).
 esc(V,N1,N):-write('_'), M is N+1, esc(V,N1,M).
 
 %% propagação restrições
+propagacao_restricoes(e([],_), A, A).
+propagacao_restricoes(e([v(J,Dj,Vj)|R],[v(I,Di,Vi)|L]),
+                      e(R1, [v(I,Di,Vi)|L]), P) :-
+                                      quadrante_arc(v(I,Di,Vi),v(J,Dj,Vj), A),
+                                      linha_arc(v(I,Di,Vi), A, B),
+                                      coluna_arc(v(I,Di,Vi, B, v(P,Dp,Vp)),
+                                      Dp \= [],
+                                      propagacao_restricoes(e(R,[v(I,Di,Vi)|_]),
+                                                            e([v(P,Dp,Vp)|R1], [v(I,Di,Vi)|_]),
+                                                            P).
 
-propagacao_restricoes(E, E1) :-
+
+quadrante_arc(v(I, Di, Vi), v(J, Dj, Vj), v(J, D, Vj)) :- quadrantes(A),member(I,A),
+                                     member(J, A), !,
+                                     rem(Vi,Dj,D). 	%verifica se os valores são repetidos dentro do "quadrado"
+quadrante_arc(_, A, A).
+
+linha_arc(v([X1,Y1], Di, Vi), v([X1,Y2], Dj, Vj), v(J, D, Vj)) :- !, rem(Vi,Dj,D) .
+linha_arc(_,A,A).
+coluna_arc(v([X1,Y1], Di, Vi), v([X2,Y1], Dj, Vj), v(J, D, Vj)) :- !, rem(Vi,Dj,D) .
+coluna_arc(_,A,A).
+rem(_, [], []).
+rem(Item, [Item|L],L) :- !.
+rem(Item, [X|XT],[X|YT]) :- rem(Item, XT, YT).
