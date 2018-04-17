@@ -97,13 +97,17 @@ estado_inicial(e([v([1,1],[1,2,3,4,5,6,7,8,9],_), v([1,6],[1,2,3,4,5,6,7,8,9],_)
 
 %Restricoes
 %quadrante(=i+1...2 && =j+1...2)!=val; lines(=i+1...8) != val; columns(=j+10...80) != val
-ve_restricoes(e(_,Afect)) :- member(v(I,Di,Vi), Afect), ve_restricoesl(v(I,Di,Vi),e(_,Afect)), ve_restricoesc(v(I,Di,Vi),e(_,Afect)), ve_restricoesq(v(I,Di,Vi),e(_,Afect)).
+ve_restricoes(e(_,Afect)) :- \+(member(v(I,Di,Vi), Afect), ve_restricoesl(v(I,Di,Vi),Afect),
+                                ve_restricoesc(v(I,Di,Vi),Afect), quadrante(v(I,Di,Vi), Afect)).
 
-ve_restricoesl(v([X,Y],Di,Vi),e(_,Afect)) :- member(v([X,_],_,Vi), Afect), line().
+ve_restricoesl(v([X,Y],_,Vi),Afect) :- member(v([X,Z],_,Vi), Afect),  Z\=Y.%, line(v([X,Y],Di,Vi),v([X,Z],_,Vi)).
 
-ve_restricoesc(v([X,Y],Di,Vi),e(_,Afect)) :- member(v([_,Y],_,Vi), Afect), column():
+ve_restricoesc(v([X,Y],_,Vi),Afect) :- member(v([Z,Y],_,Vi), Afect), Z\=X.%, column(v([X,Y],_,Vi),v([Z,Y],_,Vi)).
 
-ve_restricoes(e(_, Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect), write('Afetados -> '), write(v(I,_,Vi)),  write(', -> '), write(v(J,Dj,Vj)), nl,
+quadrante(v([X,Y],Di,Vi),Afect) :- quadrantes(A), member([X,Y],A), member([X1,Y1],A), [X,Y]\=[X1,Y1], member(v([X1,Y1],_,Vi),Afect).
+
+/*
+ve_restricoes(e(_, Afect)):- \+(member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect), write('Afetados -> '), write(v(I,_,Vi)),  write(', -> '), write(v(J,Dj,Vj)), nl,
                                 I\=J,%(I1 \= J1; I2 \= J2),
                                 (line(v(I,Di,Vi), v(J,Dj,Vj)),
                                 write('Line -> Vi = '),write(Vi), write(' coor = '), write(I),write('| coor = '), write(J), write(', Vj = ') ,write(Vj), nl,
@@ -112,7 +116,7 @@ ve_restricoes(e(_, Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Af
                                 column(v(I,Di,Vi), v(J,Dj,Vj)),
                                 write('Column -> Vi = '),write(Vi), write('coor = '), write(I),write('| coor = '), write(J), write(', Vj = ') ,write(Vj), nl)).
 %ve_restricoes(e(Nafect,[A])).
-
+*/
 /*
 ve_restricoes(e(_,Afect)) :- member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect), write('Afetados -> '), write(v(I,_,Vi)),  write(', -> '), write(v(J,Dj,Vj)), nl,
                             I\=J,
@@ -123,9 +127,10 @@ ve_restricoes(e(_,Afect)) :- member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect)
                             column(v(I,Di,Vi), v(J,Dj,Vj)).
                             write('Column -> Vi = '),write(Vi), write(', coor = '), write(I),write(', coor = '), write(J), write(', Vj = ') ,write(Vj), nl.
 */
-quadrante(v(I,_,Vi), v(J,_,Vj)) :- quadrantes(A), /*write('Quadrante = '), write(A),*/ member(I,A),% write('Coord = '),write(I),nl,
+/*
+quadrante(v(I,_,Vi), v(J,_,Vj)) :- quadrantes(A), write('Quadrante = '), write(A), member(I,A),% write('Coord = '),write(I),nl,
                                      member(J, A), %!,
-                                     Vi = Vj. 	%verifica se os valores são repetidos dentro do "quadrado"
+                                     Vi = Vj. 	%verifica se os valores são repetidos dentro do "quadrado"*/
 %quadrante(v(I,_,_), v(J,_,_)) :- write('Quadrante -> Coord: I = '), write(I), write(' ; J = '), write(J), nl.
 line(v([X,_],_,V),v([X,_],_,V)) :- write('Line-> X = '),write(X),write(', V = '),write(V), nl.% :- !, V\=V1, write('X = '),write(X),write(', V = '),write(V), nl.		%verifica se os valores são repetidos numa linha
 %line(v(I,_,V),v(J,_,V1)) :- write('Line -> I = '),write(I),write(', V = '),write(V),write(' | J = '), write(J),write(', V1 = '), write(V1), nl.
@@ -141,14 +146,14 @@ esc(V,V,V):- !,write(r),nl.
 esc(V,N,V):- !,write('_'),nl.
 esc(V,N,N):-!,write(r), M is N+1, esc(V,N,M).
 esc(V,N1,N):-write('_'), M is N+1, esc(V,N1,M).
-*//*
+*/
 esc(L) :- sort(L, L1), write(L1), nl, esc1(L1).
-esc2([]).
+esc1([]).
 esc1([v([X,Y],_,V)|R]) :- write(V), write(' '), esc2([v([X,Y],_,V)|R]).
 esc2([v([_,Y],_,_)|R]) :- Y\=9,!, Y mod 3 = 0, write('| '), esc1(R).
 esc2([v([X,_],_,_)|R]) :- X mod 3 = 0, nl, write('---------+----------+---------'),nl, esc1(R).
 
-*/
+
 %% propagação restrições
 propagacao_restricoes(e([],_), A, A).
 propagacao_restricoes(e([v(J,Dj,Vj)|R],[v(I,Di,Vi)|L]),
