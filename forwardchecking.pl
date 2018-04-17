@@ -8,15 +8,19 @@ quadrantes([[7,1],[7,2],[7,3],[8,1],[8,2],[8,3],[9,1],[9,2],[9,3]]).
 quadrantes([[7,4],[7,5],[7,6],[8,4],[8,5],[8,6],[9,4],[9,5],[9,6]]).
 quadrantes([[7,7],[7,8],[7,9],[8,7],[8,8],[8,9],[9,7],[9,8],[9,9]]).
 
-p:- estado_inicial(e(P,B)), back(e(P,B), B, A), sort(A), escreve(A).
+p:- estado_inicial(e(P,B)), restricoes_iniciais(e(P,B), C) ,back(e(C,B), A), sort(A), escreve(A).
 
-back(e([],A),_,A).
-back(E, B, Sol) :-  sucessor(E,E1), ve_restricoes(E1, B),
-                propagacao_restricoes(E1, E3), back(E3,B,Sol).
+back(e([],A),A).
+back(E, Sol) :-  sucessor(E,E1),  propagacao_restricoes(E1, E3), back(E3,Sol).
 
 
 sucessor(e([v(N,D,V)|R],E),e(R,[v(N,D,V)|E])):- member(V,D).
 
+restricoes_iniciais(e(A, []), A).
+restricoes_iniciais(e(R,[v(I,Di,Vi)|L]), F) :-coluna_arc(v(I,Di,Vi), R, [], T),
+                                      linha_arc(v(I,Di,Vi), T, [], T1),
+                                      quadrante_arc(v(I,Di,Vi), T1, [], R3),
+                                      restricoes_iniciais(e(R3, L), F).
 
 estado_inicial(e([v([1,4],[1,2,3,4,5,6,7,8,9],_), v([1,5],[1,2,3,4,5,6,7,8,9],_), v([1,7],[1,2,3,4,5,6,7,8,9],_),
                   v([1,8],[1,2,3,4,5,6,7,8,9],_), v([1,9],[1,2,3,4,5,6,7,8,9],_),
@@ -73,11 +77,8 @@ escreve([v([_,Y],_,Vi)|Afect]) :- T is Y mod 3, T = 0, write(Vi),write(' | ') ,e
 escreve([v(_,_,Vi)|Afect]) :-  write(Vi), write(' '), escreve(Afect).
 
 
-
-
-
 propagacao_restricoes(e(R,[v(I,Di,Vi)|L]), e(R3, [v(I,Di,Vi)|L])) :-
-                                    quadrante_arc(v(I,Di,Vi), R, [], T),
+                                    coluna_arc(v(I,Di,Vi), R, [], T),
                                     linha_arc(v(I,Di,Vi), T, [], T1),
                                     quadrante_arc(v(I,Di,Vi), T1, [], R3).
 
