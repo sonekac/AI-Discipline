@@ -9,7 +9,7 @@ quadrantes([[7,1],[7,2],[7,3],[8,1],[8,2],[8,3],[9,1],[9,2],[9,3]]).
 quadrantes([[7,4],[7,5],[7,6],[8,4],[8,5],[8,6],[9,4],[9,5],[9,6]]).
 quadrantes([[7,7],[7,8],[7,9],[8,7],[8,8],[8,9],[9,7],[9,8],[9,9]]).
 
-p:- estado_inicial(E0), back(E0,A), esc(A).
+p:- estado_inicial(E0), back(E0,A), sort(A), escreve(A).
 
 back(e([],A),A).
 back(E,Sol) :- sucessor(E,e(A,F)), ve_restricoes(e(A,F)),% write(F), nl,
@@ -63,12 +63,9 @@ ve_restricoesc(v([X,Y],_,Vi),Afect) :- member(v([Z,Y],_,Vi), Afect), Z\=X.
 
 quadrante(v([X,Y],Di,Vi),Afect) :- quadrantes(A), member([X,Y],A), member([X1,Y1],A), [X,Y]\=[X1,Y1], member(v([X1,Y1],_,Vi),Afect).
 
-esc(L) :- sort(L, L1), write(L1),nl,esc1(L1).
-esc1([]).
-esc1([v([X,Y],_,V)|R]) :- write(V), write(' '), /*look(),*/ esc1(R).
 
-/*esc2([v([_,Y],_,_)|R]) :- Y\=9,!, Y mod 3 = 0, write('| '), esc1(R).
-esc2([v([X,_],_,_)|R]) :- X mod 3 = 0.%, nl, write('---------+----------+---------'),nl, esc1(R).
-*/
-look(X,Y) :- 0 is (X mod 3), write('| '), look1(Y).
-look1(Y) :- 0 is (Y mod 3), nl, write('---------+----------+---------'),nl.
+escreve([]).
+escreve([v([X,9],_,Vi)|Afect]) :- T is X mod 3, T = 0, write(Vi), nl,write('------+-------+------'),nl ,escreve(Afect).
+escreve([v([_,9],_,Vi)|Afect]) :- write(Vi), nl ,escreve(Afect).
+escreve([v([_,Y],_,Vi)|Afect]) :- T is Y mod 3, T = 0, write(Vi),write(' | ') ,escreve(Afect).
+escreve([v(_,_,Vi)|Afect]) :-  write(Vi), write(' '), escreve(Afect).
