@@ -97,6 +97,11 @@ estado_inicial(e([v([1,1],[1,2,3,4,5,6,7,8,9],_), v([1,6],[1,2,3,4,5,6,7,8,9],_)
 
 %Restricoes
 %quadrante(=i+1...2 && =j+1...2)!=val; lines(=i+1...8) != val; columns(=j+10...80) != val
+ve_restricoes(e(_,Afect)) :- member(v(I,Di,Vi), Afect), ve_restricoesl(v(I,Di,Vi),e(_,Afect)), ve_restricoesc(v(I,Di,Vi),e(_,Afect)), ve_restricoesq(v(I,Di,Vi),e(_,Afect)).
+
+ve_restricoesl(v([X,Y],Di,Vi),e(_,Afect)) :- member(v([X,_],_,Vi), Afect), line().
+
+ve_restricoesc(v([X,Y],Di,Vi),e(_,Afect)) :- member(v([_,Y],_,Vi), Afect), column():
 
 ve_restricoes(e(_, Afect)):- \+ (member(v(I,Di,Vi), Afect), member(v(J,Dj,Vj),Afect), write('Afetados -> '), write(v(I,_,Vi)),  write(', -> '), write(v(J,Dj,Vj)), nl,
                                 I\=J,%(I1 \= J1; I2 \= J2),
