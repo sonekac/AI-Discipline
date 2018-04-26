@@ -28,7 +28,7 @@ minimax(E, MelhorAcao) :-
         i(V, A),
         (
             sucessor(E, A, S),
-            valor_min_mm(S, V)
+            valor_min_mm(S, V),
         ),
         ValoresAcoes),
     arg_maxvalor(ValoresAcoes, i(_, MelhorAcao)).
@@ -83,13 +83,94 @@ valor_min_mm(Estado, Valor) :-
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-/*
-	EXERCÍCIO
-*/
+alfabeta(E, terminal) :-
+    estado_terminal(E), !.
+%
+alfabeta(E, MelhorAcao) :-
+    findall(
+        i(S,A),
+        (
+            sucessor(E, A, S)
+        ),
+        ListaSucessores),
+    temos de achar o maximo ainda !!!!!!!!
+    arg_maxvalor(ValoresAcoes, i(_, MelhorAcao)).
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+valor_maxab([i(Estado,Acao)|ListaSucessores], MelhorAcao, Beta) :-
+    valor_max_ab(Estado, Valor),
+    maior(Valor ,Beta),
+    check(Valor ,Beta, Acao, MelhorAcao, A),
+    valor_maxab(ListaSucessores, A, Beta)
+
+check(Valor , Valor, Acao, Acao, Acao) :- !.
+check(Valor , Beta, Acao, MelhorAcao, Acao) :-
+    Valor \= Beta,
+    var(MelhorAcao), !.
+check(_, _, _, A, A).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+valor_max_ab(Estado, Valor) :-
+    estado_terminal(Estado), !,
+    utilidade(Estado, Valor).
+%
+valor_max_ab(Estado, Valor) :-
+    %
+    %   Determinar os valores_min dos sucessores.
+    %
+    findall(
+        V,
+        (
+            sucessor(Estado, _, S),
+            valor_min_ab(S, V)
+        ),
+        Valores),
+    %
+    %   Escolher o maior valor_min.
+    %
+    maximo(Valores, Valor).
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+valor_minab([i(Estado,Acao)|ListaSucessores], MelhorAcao, Alpha) :-
+    valor_max_ab(Estado, Valor),
+    menor(Alpha),
+    valor
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+valor_min_ab(Estado, Valor) :-
+    estado_terminal(Estado), !,
+    utilidade(Estado, Valor).
+%
+valor_min_ab(Estado, Valor) :-
+    %
+    %   Determinar os valores_max dos sucessores
+    %
+    findall(
+        V,
+        (
+            sucessor(Estado, _, S),
+            valor_max_ab(S, V)
+        ),
+        Valores),
+    %
+    %   Escolher o menor valor_max.
+    %
+    minimo(Valores, Valor).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Predicados auxiliares
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+maior(Valor, Beta) :- var(Beta), !, Beta is Valor.
+maior(Valor, Beta) :- Valor > Beta.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

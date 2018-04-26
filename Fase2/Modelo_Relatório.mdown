@@ -1,0 +1,316 @@
+# Inteligência Artificial - Trabalho 1
+
+## Elementos
+
+
+ Número | Primeiro Nome + Apelido
+--------|-------------------------
+35137 | Daniel Coutinho
+35178 | Liliana Monteiro
+
+### Grupo 1
+
+#### Pergunta 1.1
+
+No ficheiro 'problema.pl' vais constar todas as operações de transição com o predicado tr, o espaço de estados é definido da seguinte maneira:  
+		estado(LocalAspirador, LocaisSujos, LocaisCarregador, Carga)
+
+* LocalAspirador: lista com dois valores que indica as coordenadas do aspirador 
+* LocaisSujos: Listas de listas, sendo que listas da listas vão ser as coordenadas de locais sujos
+* LocaisCarregador: Listas de listas, sendo que listas da listas vão ser as coordenadas de locais dos carregadores.
+* Carga: é a carga que o aspirador tem neste estado. 
+
+Existem situações que são constantes que são definidas como estado inicial e estado final. Estas situações são: a matriz que é definida com o predicado matriz(M,N), M é largura do espaço e N é o comprimento, a capacidade de carga do aspirador é definida pelo predicado capacidade(T) sendo que T é a carga máxima que o carregador pode ter. 
+
+		
+```prolog
+				/* Para definir: */
+				capacidade(7). /* Capacidade de carga do aspirador*/
+				matriz(5,3).
+				estado_inicial(estado([3,1], [[5,1],[1,1],[5,3],[1,3]], [[3,2]], 7)).
+
+				/*estado_final :- estado_final([2,3], [], _, _, _).*/
+				estado_final(estado(A, [], B, _)) :- member(A, B).
+
+				/*	Move para a carregar */
+				tr(
+					estado(LocalAspirador, S, LocalCarregador, _),
+					carregar,
+					estado(LocalAspirador, S, LocalCarregador, Capacidade1), 1) :- 	member(LocalAspirador, LocalCarregador),
+																					capacidade(Capacidade1).
+
+				/*	Move para a limpar */
+				tr(
+					estado(LocalAspirador, LocaisSujos, C, Capacidade),
+					limpar,
+					estado(LocalAspirador, LocaisSujos1, C, Capacidade1), 1) :- 	Capacidade > 0,
+																					member(LocalAspirador, LocaisSujos),
+																					rem(LocalAspirador, LocaisSujos, LocaisSujos1),
+																					Capacidade1 is Capacidade - 1.
+																				
+
+				/*	Mover para a esquerda */
+				tr(
+					estado([LoAspX,LoAspY], S, C, Capacidade),
+					esquerda,
+					estado([LoAspX1,LoAspY], S, C, Capacidade1), 1) :- 	Capacidade > 0,
+																		LoAspX1 is LoAspX - 1,
+																		LoAspX1 >= 1,  
+																		Capacidade1 is Capacidade - 1.
+
+				/*	Move para a direita	*/
+				tr(
+					estado([LoAspX,LoAspY], S, C, Capacidade),
+					direita,
+					estado([LoAspX1,LoAspY], S, C, Capacidade1), 1) :- 	matriz(M,_),
+																		Capacidade > 0,
+																		LoAspX1 is LoAspX + 1,
+																		LoAspX1 =< M, 
+																		Capacidade1 is Capacidade - 1.
+
+				/*	Move para a baixo */
+				tr(
+					estado([LoAspX,LoAspY], S, C, Capacidade),
+					baixo,
+					estado([LoAspX,LoAspY1], S, C, Capacidade1), 1) :- 	matriz(_,N),
+																		Capacidade > 0,
+																		LoAspY1 is LoAspY + 1,
+																		LoAspY1 =< N, 				
+																		Capacidade1 is Capacidade - 1.
+
+				/*	Move para a cima */
+				tr(
+					estado([LoAspX,LoAspY], S, C, Capacidade),
+					cima,
+					estado([LoAspX,LoAspY1], S, C, Capacidade1), 1) :- 	Capacidade > 0,
+																		LoAspY1 is LoAspY - 1,
+																		LoAspY1 >= 1,																	
+														Capacidade1 is Capacidade - 1.
+
+```
+
+#### Pergunta 1.2
+
+O algoritmo de pesquisa não informada, que escolhemos como sendo o mais eficiente, foi o algoritmo de pesquisa em profundidade iterativa que implementamos da seguinte maneira:
+		
+
+
+```prolog
+
+				pesquisa(Problema, Solucao, Stat) :-
+					consult('tools1.pl')
+				    consult(Problema),
+				    estado_inicial(E0),
+				    pesquisa_iterativa([no(E0, nenhum, nenhuma, 0, 0)], Solucao, 1, Stat).
+
+				pesquisa_iterativa(Lista, Solucao, Profundidade, Stats) :-
+				    pesquisa_plim(Lista, Solucao, Profundidade, [], Stats).
+				pesquisa_iterativa(Lista, Solucao, Profundidade, Stats) :-
+				    P1 is Profundidade + 1,
+				    pesquisa_iterativa(Lista, Solucao, P1, Stats).
+				/*
+				    Pesquisa profundidade limitada
+				    pesquisa_plim(Abertos, Solucao, EstadoFinal, Profundidade, Fechados, Stats)
+				*/
+				%
+				% O topo dos candidatos é um estado final?
+				%
+				pesquisa_plim(
+				    [no(Ef, A, O, C, P) | R], no(Ef, A, O, C, P), _, _, stat(0, LL)) :-
+				    estado_final(Ef),!,
+				    length(R, LR),
+				    LL is LR + 1.
+				%
+				% Espandir topo dos candidatos...
+				%
+				pesquisa_plim([No | Resto], S, P, V, Stats) :-
+				    No = no(E, _, _, _, _),
+				    member(E, V), !, % Não expandir em estados visitados
+				    pesquisa_plim(Resto, S, P, V, Stats).
+				pesquisa_plim([No | R], S, P, V, stat(NN1, LL1)) :-
+				    No = no(E, _, _, _, _),
+				    expande_plim(No, Filhos, P),
+				    append(Filhos, R, Seguintes),
+				    pesquisa_plim(Seguintes, S, P, [E | V], stat(NN, LL)),
+				    NN1 is NN + 1,
+				    length(Seguintes, LS),
+				    max(LL, LS, LL1).
+				%
+				% Cortar a espansão de nós demasiado profundos.
+				%
+				expande_plim(no(_, _, _, _, P), [], Plim) :- 
+				    Plim =< P, !.
+				%
+				% Desenvolver os filhos de um nó.
+				%
+				expande_plim(no(E, A, O, C, P), Filhos, _) :-
+				    findall(
+				        no(Enovo, no(E, A, O, C, P), Onovo, Cnovo, Pnovo),
+				        (   tr(E, Onovo, Enovo, Cop),
+				            Pnovo is P + 1,
+				            Cnovo is C + Cop ),
+				        Filhos).
+
+```
+
+
+Este código foi nos dado na aula. E para o correr basta alterar o ficheiro tool.pl com os parâmetros desejados e correr o comando :
+```prolog
+	consult('iterativo.pl'). pesquisa('problema.pl', _, _). 
+``` 
+#### Pergunta 1.3
+Nós escolhemos este porque era aquele que nos deu menos nós visitados.
+##### I) 	
+121 nós visitados
+##### II) 
+40 nós simultaneamente em memória		
+
+
+## Respostas
+
+### Grupo 2
+
+#### Pergunta 2.1
+
+A primeira heurística consiste em primeira fase, os estados vão ter como heurística o valor da distância do local sujo mais perto e vai excluir qualquer estado ,cujo a soma das distâncias do local do aspirador ao local sujo mais próximo e do local sujo mais próximo ao local do carregador mais próximo do local anterior. Caso isto falhe vai procurar o local de carga mais próximo. A segunda fase começa quando o estado não tem locais sujos e precisa de parar num local de carga, e a heurística calculada vai ser a distância do local do aspirador ao local de carga mais próximo.
+
+A segunda heurística consiste no mesmo, mas na primeira fase vai somar ao valor da heurística o número de espaços sujos.
+
+Para testar as heurística faz os seguintes comandos: 
+
+```prolog
+consult('aestrela.pl'). pesquisa('problema.pl', A, _, _). 
+``` 
+, o valor A pode ser substituído por 'heuristica1.pl' para usar a 1º heurística ou 'heuristica2.pl' para usar a 2º heurística
+
+#### Pergunta 2.2
+O algoritmo que escolhemos como sendo o mais eficiente foi A*, esta foi uma implementação dada nas aulas com algumas melhorias:
+
+		
+```prolog
+
+		pesquisa(Problema, Heuristica, Solucao, Stat) :-
+		    consult(Problema),    % estado_inicial, estado_final, tr
+		    consult(Heuristica),  % heuristica
+		    consult('tools.pl'),
+		    estado_inicial(E0), 
+		    p_aestrela([no(E0, nenhum, nenhum, 0, 1, 0)], Solucao, [],Stat),
+		    escreve(Stat),
+		    escreve_no(Solucao).
+		 	  
+			%
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%
+			%   Implementação da Pesquisa A*
+			%
+			p_aestrela(
+			    [no(E, Pai, Op, C, HC, P) | Restantes],
+			    no(E, Pai, Op, C, HC, P),
+			    _,
+			    stat(1, EM))
+			:-
+			    estado_final(E), !,
+			    length(Restantes, LR),
+			    EM is LR + 1.
+			p_aestrela([no(E, _, _, _, _, _) | Resto], Solucao, Visitados,stat(EV, EM)) :- member(E,Visitados),!,
+			    p_aestrela(Resto, Solucao, Visitados, stat(EV, EM)). % Recursivamente, pesquisa na lista expandida
+
+			p_aestrela([no(E, Pai, Op, C, HC, P) | Resto], Solucao, Visitados,stat(EV, EM)) :-
+			    expande(no(E, Pai, Op, C, HC, P),Filhos), % Expande o primeiro nó
+			    append(Filhos, Resto, Seguintes),       % Nova lista de pesquisa
+			    ordena_h(Seguintes, S_ordenados),       % Ordenação por heuristica
+			    !,
+			    p_aestrela(S_ordenados, Solucao, [E|Visitados], stat(EV0, EM0)), % Recursivamente, pesquisa na lista expandida
+			    EV is EV0 + 1,
+			    length(Seguintes, LenSeguintes),
+			    max(EM0, LenSeguintes, EM).
+			%
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%
+			expande(no(E0, Pai, Tr0, C0, HC0, P0), Filhos) :- 
+			    findall(
+			        no(E1, no(E0, Pai, Tr0, C0, HC0, P0), Tr1, C1, HC1, P1),
+			        (
+			            tr(E0, Tr1, E1, CTr1),
+			            P1 is P0 + 1,
+			            C1 is CTr1 + C0,
+			            heuristica(E1, H),
+			            HC1 is C1 + H
+			        ),
+			        Filhos
+			    ).
+			%
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%
+			expande_a(no(E0, Pai, Tr0, C0, HC0, P0), Visitados, Filhos) :-
+			    findall(
+			        no(E1, no(E0, Pai, Tr0, C0, HC0, P0), Tr1, C1, HC1, P1),
+			        (
+			            tr(E0, Tr1, E1, CTr1),
+			            P1 is P0 + 1,
+			            C1 is CTr1 + C0,
+			            heuristica(E1, H),
+			            HC1 is C1 + H,
+			            \+ (member(E1, Visitados))
+			        ),
+			        Filhos
+			    ).
+
+			associa_custo([], []).
+
+			associa_custo([no(E, P, A, C, H, D) | Resto], [i(C, no(E, P, A, C, H, D)) | Resto1]) :-
+			    associa_custo(Resto, Resto1).
+			%
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%
+			projecta_custo([], []).
+
+			projecta_custo([ i(_, No) | Resto], [No | Resto1]) :-
+			    projecta_custo(Resto, Resto1).
+			%
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%
+			%   Ordenação por Heurística
+			%
+			%   1. associar cada nó ao valor da heuristica,
+			%   2. usar o sort do prolog
+			%   3. recuperar os nós do "mapa" ordenado
+			%
+			ordena_h(Nos, Ordenados) :-
+			    associa_h(Nos, M),
+			    sort(M, M_ordenado),
+			    projecta_h(M_ordenado, Ordenados).
+			%
+			%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			%
+			%   Passo 1: Associar cada nó ao valor da heuristica
+			%
+			associa_h([], []).
+
+			associa_h([no(E, P, A, C, H, D) | Resto], [i(H, no(E, P, A, C, H, D)) | Resto1]) :-
+			    associa_h(Resto, Resto1).
+			%
+			%   Passo 3: Projectar o nó
+			%
+			projecta_h([], []).
+
+			projecta_h([ i(_, No) | R0], [No | R1]) :-
+			    projecta_h(R0, R1).
+```
+
+###### I) 
+		Na 1º heurística: 665 nós visitados
+		Na 2º heurística: 649 nós simultaneamente em memória
+###### II) 
+		Na 1º heurística: 136 nós simultaneamente em memória
+		Na 2º heurística: 146 nós simultaneamente em memória
+	
+## Programas Usados
+
+- `problema.pl`: contém o espaço de estados, elementos relacionados com cada estado e as operações de transição de estados.
+- `tools.pl`: aqui vão estar funções que são uteis mas não estam ligadas directamente ao trabalho.
+- `aestrela.pl`: neste ficheiro vai estar a implementação do algoritmo de pesquisa A* dada nas aulas com as melhorias.
+- `iterativa.pl`: neste ficheiro vai estar a implementação do algoritmo pesquisa em profundidade
+Iterativa dada nas aulas.
+- `heuristica1.pl`: esta é a implementação da 1º heurística.
+- `heuristica2.pl`: esta é a implementação da 2º heurística.
