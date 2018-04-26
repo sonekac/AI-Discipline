@@ -21,7 +21,7 @@ sucessor(e(A, [[linha(K), J]|C], X), menos(N), e(B, S, Y)) :-
 	outro(A, B).
 
 escreve(e(_, N, X)) :-
-	nl, write(' : '), write(N), write(' Linhas->'), write(X), nl.
+	nl, write(' : '), write(N), write(' Linhas -> '), write(X), nl.
 
 outro(a, b).
 outro(b, a).
